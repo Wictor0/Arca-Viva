@@ -1,37 +1,41 @@
+// Autoria da Documentação e Comentários: Ana Clara (https://github.com/aclyra)
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { calcularRiscoExtincao } from '../utils/analiseLogic';
-import { supabase } from '../lib/supabase';
+import { calcularRiscoExtincao } from '../utils/analiseLogic'; // Importa a lógica matemática do cálculo de risco
+import { supabase } from '../lib/supabase'; // Importa o cliente de conexão com o banco de dados Supabase
 
 import bannerAnalise from '../assets/analise.jpg';
 
 export const Analise = ({ session }) => {
-  const [racas, setRacas] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [salvando, setSalvando] = useState(false);
-  const [erro, setErro] = useState(null);
-  const [filtro, setFiltro] = useState('');
+  const [racas, setRacas] = useState([]); // Lista principal de espécies vindas do banco
+  const [carregando, setCarregando] = useState(true); // Controle visual de "Carregando dados..."
+  const [salvando, setSalvando] = useState(false); // Desativa botões enquanto o banco salva dados
+  const [erro, setErro] = useState(null); // Armazena mensagens de erro para o usuário
+  const [filtro, setFiltro] = useState(''); // Armazena o texto digitado na barra de busca
   
-  const [idEditando, setIdEditando] = useState(null);
+  const [idEditando, setIdEditando] = useState(null); // Controla se o usuário está criando ou editando um registro
 
+  // Estado do formulário estruturado para capturar os inputs textuais e critérios numéricos (c1 a c4)
   const [formData, setFormData] = useState({
     nome: '', especie: '', pais: '',
     c1: 0, c2: 0, c3: 0, c4: 0
   });
 
+  // useEffect criado para disparar a busca de dados no banco assim que a página é aberta
   useEffect(() => {
     const buscarRacas = async () => {
       setCarregando(true);
+       // Consulta ao banco Supabase unindo a tabela 'racas' com os nomes dos pesquisadores na tabela 'perfis'
       const { data, error } = await supabase
         .from('racas')
         .select('*, perfis(nome_completo)')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }); // Ordena os cadastros mais recentes primeiro
 
       if (error) {
         setErro('Erro ao carregar dados do banco.');
         console.error(error);
       } else {
-        setRacas(data);
+        setRacas(data); // Alimenta o estado com as raças encontradas
       }
       setCarregando(false);
     };
@@ -39,6 +43,7 @@ export const Analise = ({ session }) => {
     buscarRacas();
   }, []);
 
+  // Prepara o formulário com os dados da raça escolhida e faz um scroll suave até a área de edição
   const iniciarEdicao = (raca) => {
     setFormData({
       nome: raca.nome,
@@ -50,7 +55,8 @@ export const Analise = ({ session }) => {
       c4: raca.c4
     });
     setIdEditando(raca.id_raca);
-    
+
+    // Timer para garantir que o formulário apareça antes da página rolar de forma automatizada
     setTimeout(() => {
       const formElement = document.getElementById('formulario-cadastro');
       if (formElement) {
@@ -60,19 +66,23 @@ export const Analise = ({ session }) => {
     }, 100);
   };
 
+  // Limpa o formulário e tira o sistema do modo de edição
   const cancelarEdicao = () => {
     setFormData({ nome: '', especie: '', pais: '', c1: 0, c2: 0, c3: 0, c4: 0 });
     setIdEditando(null);
     setErro(null);
   };
 
+  // Processa o envio dos dados do formulário para o Supabase (Insert ou Update)
   const lidarComEnvio = async (e) => {
     e.preventDefault();
     setSalvando(true);
     setErro(null);
-
+    
+  // Executa a lógica de cálculo de pontuação baseada nas respostas sim/não dos 4 critérios
     const analise = calcularRiscoExtincao(formData.c1, formData.c2, formData.c3, formData.c4);
 
+    // Montagem do objeto payload que será gravado nas colunas do banco de dados
     const payload = {
       nome: formData.nome,
       especie: formData.especie,
@@ -87,6 +97,7 @@ export const Analise = ({ session }) => {
     };
 
     if (idEditando) {
+      // Caso esteja editando, executa uma query de UPDATE filtrando pelo ID da raça
       const { data, error } = await supabase
         .from('racas')
         .update(payload)
@@ -97,10 +108,12 @@ export const Analise = ({ session }) => {
         setErro('Erro ao atualizar. Tente novamente.');
         console.error(error);
       } else {
+        // Atualiza a lista na interface substituindo apenas o item modificado
         setRacas(racas.map(r => r.id_raca === idEditando ? data[0] : r));
         cancelarEdicao();
       }
     } else {
+      // Caso contrário, executa uma query de INSERT para incluir a nova espécie
       const { data, error } = await supabase
         .from('racas')
         .insert([payload])
@@ -110,6 +123,7 @@ export const Analise = ({ session }) => {
         setErro('Erro ao salvar. Tente novamente.');
         console.error(error);
       } else {
+        // Adiciona o novo registro no topo da lista exibida na tela
         setRacas([data[0], ...racas]);
         cancelarEdicao();
       }
@@ -118,6 +132,7 @@ export const Analise = ({ session }) => {
     setSalvando(false);
   };
 
+  // Remove um registro do banco de dados após a confirmação do pesquisador
   const lidarComDelete = async (id) => {
     const confirmar = window.confirm("Tem certeza que deseja deletar esta espécie?");
     if (!confirmar) return;
@@ -126,11 +141,13 @@ export const Analise = ({ session }) => {
     if (error) {
       alert("Erro ao deletar: " + error.message);
     } else {
+      // Remove o item excluído da visualização em tempo real (Filtro por ID)
       setRacas(racas.filter(r => r.id_raca !== id));
       if (idEditando === id) cancelarEdicao(); 
     }
   };
 
+  // Realiza a filtragem em tempo real na lista conforme o usuário digita na busca (ignora maiúsculas/minúsculas)
   const racasFiltradas = racas.filter(r =>
     r.nome.toLowerCase().includes(filtro.toLowerCase())
   );

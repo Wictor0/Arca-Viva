@@ -1,8 +1,11 @@
+// Autoria da Documentação e Comentários: Ana Clara (https://github.com/aclyra)
 import React from 'react';
 
+// Importação da imagem de cobertura utilizada no topo da página de FAQ
 import bannerFaq from '../assets/faq.jpg';
 
 export const Faq = () => {
+  // Array de objetos estruturado para armazenar o banco de dados local das perguntas e respostas do site
   const faqData = [
     {
       id: 1,
@@ -73,12 +76,16 @@ export const Faq = () => {
 
   return (
     <main>
+      {/* Banner visual superior da página */}
       <img src={bannerFaq} alt="Banner FAQ" className="banner-topo" />
       
       <section className="faq-section">
         <h1>Perguntas Frequentes (FAQ)</h1>
+        
         <div className="faq-cards-container">
+          {/* Loop utilizando o método .map() do JavaScript para percorrer a lista de perguntas e criar os blocos visuais de forma automatizada */}
           {faqData.map((item) => (
+            /* É obrigatório o uso do atributo 'key' com o id único para ajudar o React a renderizar os elementos eficientemente */
             <div key={item.id} className="faq-card">
               <h2>{item.pergunta}</h2>
               <p>{item.resposta}</p>

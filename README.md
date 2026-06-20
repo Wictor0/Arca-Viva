@@ -85,3 +85,5 @@ O Supabase é utilizado para:
 **Arca Viva** · Fauna Silvestre Brasileira · 2026
 
 </div>
+
+* [Ana Clara](https://github.com/aclyra) - Integrante do Grupo
