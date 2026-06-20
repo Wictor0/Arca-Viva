@@ -1,10 +1,13 @@
+// Autoria da Documentação e Comentários: Ana Clara (https://github.com/aclyra)
 import React from 'react';
 
+// Importação do banner de imagem correspondente à seção "Sobre Nós"
 import bannerSobre from '../assets/sobre.jpg';
 
 export const Sobre = () => {
   return (
     <main>
+      {/* Banner estético de cabeçalho para ambientação da página institucional */}
       <img src={bannerSobre} alt="Banner Sobre Nós" className="banner-topo" />
       
       <section className="about-section">
@@ -17,7 +20,7 @@ export const Sobre = () => {
 
         <h2>Nossa História</h2>
         <p>
-          A Arca Viva nasceu em 2020, da união de um grupo de biólogos e ativistas ambientais preocupados com 
+          A Arca Viva nasceu em 2020, da união de um group de biólogos e ativistas ambientais preocupados com 
           o avanço do desmatamento e os impactos das mudanças climáticas.
         </p>
         
@@ -33,6 +36,7 @@ export const Sobre = () => {
           missão. Baseamos-nos em um conjunto de valores em comum:
         </p> 
 
+        {/* Lista não ordenada (ul) contendo os pilares éticos e valores defendidos pela ONG Arca Viva */}
         <ul className="lista-valores">
           <li>
             <strong>Coragem:</strong> 
@@ -41,7 +45,7 @@ export const Sobre = () => {
           </li>
           <li>
             <strong>Integridade:</strong> 
-            vivemos os princípios que acreditamos, agindo com integridade, responsabilidade e transparência.
+            vivamos os princípios que acreditamos, agindo com integridade, responsabilidade e transparência.
           </li>
           <li>
             <strong>Respeito:</strong> 
