@@ -52,7 +52,7 @@ O nome é uma referência direta à Arca de Noé — mas desta vez, a proposta �
 
 A aplicação já está integrada com o **Supabase**, funcionando como backend-as-a-service para armazenamento e consulta de dados.
 
-### Status da Integração
+## Status da Integração
 
 - ✅ Banco de dados conectado e operacional  
 - ✅ Comunicação com o frontend funcionando corretamente  
