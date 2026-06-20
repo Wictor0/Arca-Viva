@@ -1,44 +1,51 @@
+// Autoria da Documentação e Comentários: Ana Clara (https://github.com/aclyra)
 import React, { useState, useEffect } from 'react';
+// Importação do hook do react-router-dom para fazer redirecionamentos de página via código
 import { useNavigate } from 'react-router-dom';
+// Importação da instância cliente do Supabase configurada para autenticação e banco de dados
 import { supabase } from '../lib/supabase';
 
 export function Login({ session }) {
   const navigate = useNavigate();
+  // Estado para controlar se a tela atual exibe o formulário de Login (true) ou de Cadastro (false)
   const [isLogin, setIsLogin] = useState(true);
+  // Estado de controle para desativar botões e evitar múltiplos cliques durante requisições assíncronas
   const [loading, setLoading] = useState(false);
+  // Estado para armazenar mensagens de erro ou de sucesso destinadas ao usuário
   const [message, setMessage] = useState('');
 
-  // Estados do formulário
+  // Estados locais criados para capturar os dados informados nos campos do formulário
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nome, setNome] = useState('');
-  const [categoria, setCategoria] = useState('Estudante'); // Padrão é estudante
+  const [categoria, setCategoria] = useState('Estudante'); // Define 'Estudante' como valor padrão inicial
 
-  // Se já estiver logado, manda pra Análise
+  // Monitoramento de Sessão: Se o usuário já estiver autenticado, o useEffect o redireciona direto à página de Análise
   useEffect(() => {
     if (session) {
       navigate('/analise');
     }
   }, [session, navigate]);
 
+  // Função centralizada para lidar tanto com o login quanto com o registro de novas contas
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Evita o comportamento padrão do navegador de recarregar a página
     setLoading(true);
     setMessage('');
 
     if (isLogin) {
-      // LOGAR
+      // PROCESSO DE LOGIN: Autentica o usuário com email e senha usando a API do Supabase Auth
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setMessage('Erro ao entrar: ' + error.message);
     } else {
-      // CADASTRAR (Enviando os dados extras para o Supabase)
+      // PROCESSO DE CADASTRO: Cria uma nova conta enviando metadados customizados adicionais (options.data)
       const { error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
           data: {
             nome_completo: nome,
-            categoria: categoria
+            categoria: categoria // Informação fundamental para validar se o usuário é Pesquisador ou Estudante
           }
         }
       });
@@ -47,7 +54,7 @@ export function Login({ session }) {
         setMessage('Erro ao cadastrar: ' + error.message);
       } else {
         setMessage('Cadastro realizado com sucesso! Você já pode fazer login.');
-        setIsLogin(true);
+        setIsLogin(true); // Alterna o formulário de volta para o modo Login após o cadastro bem-sucedido
       }
     }
     setLoading(false);
@@ -55,10 +62,12 @@ export function Login({ session }) {
 
   return (
     <div style={{ padding: '40px', maxWidth: '400px', margin: '0 auto', minHeight: '60vh' }}>
+      {/* Título dinâmico que se adapta ao estado de exibição atual da tela */}
       <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#00784f' }}>
         {isLogin ? 'Acesso ao Sistema' : 'Cadastro na Arca Viva'}
       </h2>
       
+      {/* Renderização condicional do bloco de mensagens (só aparece se houver algum texto no estado 'message') */}
       {message && (
         <div style={{ padding: '10px', background: '#e0f7fa', color: '#006064', marginBottom: '15px', borderRadius: '5px' }}>
           {message}
@@ -67,7 +76,7 @@ export function Login({ session }) {
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         
-        {/* Campos extras aparecem apenas no Cadastro */}
+        {/* Renderização condicional dos campos extras: Nome e Categoria só aparecem se 'isLogin' for falso (Modo Cadastro) */}
         {!isLogin && (
           <>
             <div>
@@ -97,6 +106,7 @@ export function Login({ session }) {
           </>
         )}
 
+        {/* Campos comuns que são compartilhados e exibidos em ambos os modos (Login e Cadastro) */}
         <div>
           <label>Email</label>
           <input 
@@ -118,6 +128,7 @@ export function Login({ session }) {
           />
         </div>
         
+        {/* Botão de envio que altera o rótulo de texto dinamicamente e é desativado durante requisições */}
         <button 
           type="submit" 
           disabled={loading}
@@ -127,6 +138,7 @@ export function Login({ session }) {
         </button>
       </form>
       
+      {/* Botão inferior alternador responsável por chavear o estado booleano 'isLogin' */}
       <div style={{ textAlign: 'center', marginTop: '15px' }}>
         <button 
           onClick={() => setIsLogin(!isLogin)}
