@@ -1,4 +1,4 @@
-// Autoria da Documentação e Comentários: Ana Clara (https://github.com/aclyra)
+// Autoria da Documentação e Comentários: Leticia Barbosa Santos (https://github.com/LetBarbosa)
 import React, { useState, useEffect } from 'react';
 // Importação do hook do react-router-dom para fazer redirecionamentos de página via código
 import { useNavigate } from 'react-router-dom';
